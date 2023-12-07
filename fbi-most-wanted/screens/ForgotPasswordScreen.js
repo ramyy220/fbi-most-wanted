@@ -21,7 +21,7 @@ const ForgotPasswordScreen = () => {
          <ScrollView>
         <View style={styles.root}>
        <Text style={styles.title}>Reset your password </Text>
-       <CostumInput placeholder='email' value={email} setValue={setEmail}/>
+       <CostumInput placeholder='email' value={email} setValue={setEmail} icone={<MaterialCommunityIcons name="email" size={20} color="#002176" />}/>
 
          <CustomButton text="Send" onPress={onSend} />
 
@@ -43,11 +43,9 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         marginBottom: 10,
         marginTop: 10,
-        color: '#015c600',
+        color: "002176",
     },
 });
 
 
 export default ForgotPasswordScreen;
-
-

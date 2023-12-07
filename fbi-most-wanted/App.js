@@ -4,13 +4,15 @@ import { StyleSheet, SafeAreaView } from 'react-native';
 import LoginScreen from './screens/LoginScreen';
 import SignUpScreen from './screens/SignUpScreen';
 import ForgotPasswordScreen from './screens/ForgotPasswordScreen';
+import './config/firebase';
+
 
 
 
 export default function App() {
   return (
     <SafeAreaView style={styles.container}>
-      <ForgotPasswordScreen />
+      <LoginScreen />
       <StatusBar style="auto" />
     </SafeAreaView>
   );
