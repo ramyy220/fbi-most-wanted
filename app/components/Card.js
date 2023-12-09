@@ -1,11 +1,22 @@
 import React from "react";
 import { View, Text, Image, StyleSheet } from "react-native";
 
+function truncateTitle(title, length) {
+  if (title.length > length) {
+    return title.substring(0, length) + "...";
+  } else {
+    return title;
+  }
+}
+
 const Card = ({ person }) => {
   const ageRange =
     person.age_min === person.age_max
       ? person.age_min
       : `${person.age_min} - ${person.age_max}`;
+
+  console.log(person.title);
+  console.log(person.reward);
 
   return (
     <View style={styles.card}>
@@ -15,7 +26,15 @@ const Card = ({ person }) => {
       />
       <View style={styles.textContainer}>
         <View style={styles.row}>
-          <Text style={styles.textBold}>{person.title}</Text>
+          <View style={{ width: "90%" }}>
+            <Text
+              style={styles.textBold}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              {truncateTitle(person.title, 30)}
+            </Text>
+          </View>
           {typeof ageRange === "number" && (
             <>
               <Text style={styles.text}>, </Text>
@@ -24,9 +43,16 @@ const Card = ({ person }) => {
           )}
         </View>
         {person.details && (
-          <Text style={styles.textDescription}>
-            {person.details.replace(/<[^>]*>?/gm, "")}
-          </Text>
+          <View style={styles.wrapper}>
+            <Text style={styles.textDescription}>
+              {person.details.replace(/<[^>]*>?/gm, "")}
+            </Text>
+          </View>
+        )}
+        {person.reward && (
+          <View style={styles.wrapper}>
+            <Text style={styles.text}>{person.reward}</Text>
+          </View>
         )}
       </View>
     </View>
@@ -69,9 +95,10 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
   },
   cardImage: {
-    width: "100%",
-    height: 300,
+    height: "50%",
     flex: 1,
+    borderWidth: 2,
+    borderColor: "black",
   },
   row: {
     display: "flex",

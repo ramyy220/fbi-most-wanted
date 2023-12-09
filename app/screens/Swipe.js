@@ -10,7 +10,13 @@ const Swipe = () => {
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchData = async (pageSize, page, sort_on, sort_order) => {
+  const fetchData = async (
+    pageSize,
+    page,
+    sort_on,
+    sort_order,
+    poster_classification
+  ) => {
     try {
       const response = await axios.get("https://api.fbi.gov/@wanted", {
         params: {
@@ -18,6 +24,8 @@ const Swipe = () => {
           page,
           sort_on,
           sort_order,
+          poster_classification,
+          status: "na",
         },
       });
       const modifiedData = response.data.items.map((item) => {
@@ -30,6 +38,19 @@ const Swipe = () => {
         } else {
           item.title = item.title.split("-")[0].trim();
         }
+
+        // Parse reward_text and create new reward property
+        if (item.reward_text) {
+          const rewardMatch = item.reward_text.match(
+            /\$\d+(?:,\d{3})*(?:\.\d{1,2})?(?: million)?/
+          );
+          if (rewardMatch) {
+            item.reward = rewardMatch[0];
+          }
+        } else {
+          item.reward = `${item.reward_min} - ${item.reward_max}`;
+        }
+
         return item;
       });
       setData(modifiedData);
@@ -41,7 +62,7 @@ const Swipe = () => {
   };
 
   useEffect(() => {
-    fetchData(1000, 1, "modified", "desc");
+    fetchData(20, 1, "modified", "desc", "terrorist");
   }, []);
 
   if (isLoading) {
@@ -63,7 +84,7 @@ const Swipe = () => {
         backgroundColor="white"
         cardHorizontalMargin={0}
         stackSize={2} // Number of cards shown in the background
-        containerStyle={styles.swiperContainer} // Put in full screen
+        //containerStyle={styles.swiperContainer} // Put in full screen
       />
     </View>
   );
