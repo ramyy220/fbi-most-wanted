@@ -4,10 +4,12 @@ import CustomInput from "../components/CustomInput";
 import CustomButton from "../components/CustomButton";
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { sendPasswordResetEmail } from "firebase/auth";
-import { auth } from "../config/firebase.js";  // Assurez-vous que c'est le bon chemin d'accès
+import { auth } from "../config/firebase.js"; 
+import { useNavigation } from "@react-navigation/native";
 
 const ForgotPasswordScreen = () => {
     const [email, setEmail] = useState('');
+    const navigation = useNavigation();
 
     const onSend = () => {
         sendPasswordResetEmail(auth, email)
@@ -22,7 +24,7 @@ const ForgotPasswordScreen = () => {
     };
 
     const onSignIn = () => {
-        console.warn('Sign In');
+        navigation.navigate('Login');
     };
 
     return (

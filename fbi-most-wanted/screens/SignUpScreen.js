@@ -5,6 +5,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import CustomInput from "../components/CustomInput";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../config/firebase.js";
+import { useNavigation } from "@react-navigation/native";
 
 const SignUpScreen = () => {
   const [username, setUsername] = useState('');
@@ -12,6 +13,7 @@ const SignUpScreen = () => {
   const [password, setPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [emailError, setEmailError] = useState('');
+  const navigation = useNavigation();
 
   const validatePassword = (password) => {
     const regex = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/;
@@ -46,6 +48,7 @@ const SignUpScreen = () => {
           // Signed up
           const user = userCredential.user;
           console.log("user created");
+          navigation.navigate('Login');
         })
         .catch((error) => {
           const errorCode = error.code;
@@ -68,7 +71,8 @@ const SignUpScreen = () => {
   };
 
   const onSignIn = () => {
-    console.warn('Sign In');
+    
+    navigation.navigate('Login');
   };
 
   return (

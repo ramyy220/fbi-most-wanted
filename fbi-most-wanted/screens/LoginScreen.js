@@ -8,6 +8,7 @@ import CustomInput from "../components/CustomInput";
 import { auth } from "../config/firebase.js";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { Alert } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 
 
 const LoginScreen = () => {
@@ -15,6 +16,7 @@ const LoginScreen = () => {
     const [password, setPassword] = useState('');
     const [passwordError, setPasswordError] = useState('');
     const [emailError, setEmailError] = useState('');
+    const navigation = useNavigation();
 
     const onSignInPressed = () => {
         signInWithEmailAndPassword(auth, email, password)
@@ -24,6 +26,7 @@ const LoginScreen = () => {
             setEmailError('');
             setPasswordError('');
             Alert.alert("Login Success", "You have successfully logged in!", [{ text: "OK" }]);
+            navigation.navigate('Home');
           })
           .catch((error) => {
             const errorCode = error.code;
@@ -41,7 +44,9 @@ const LoginScreen = () => {
 
     
     const onForgot = () => {
-        console.warn('Forgot Password');
+      
+        navigation.navigate('Forgot');
+
     };
     const onSignInFacebook = () => {
         console.warn('Sign in with Facebook');
@@ -53,7 +58,8 @@ const LoginScreen = () => {
         console.warn('Sign in with Apple');
     }
     const onSignUp = () => {
-        console.warn('Sign Up');
+       
+        navigation.navigate('Signup');
     }
 
     const {height} = useWindowDimensions();
@@ -80,6 +86,7 @@ const LoginScreen = () => {
                 {!!passwordError && <Text style={styles.errorText}>{passwordError}</Text>}
 
                 <CustomButton text="Sign In" onPress={onSignInPressed} />
+                <CustomButton text="Forgot Password?" onPress={onForgot} type='TERTIARY' />
 
          <CustomButton text="Sign In with Facebook" onPress={onSignInFacebook} bgColor="#e7e1f4" fgColor='#4765a9' icone={<MaterialCommunityIcons name="facebook" size={20} color="#4765a9" />} />
          <CustomButton text="Sign In with Google" onPress={onSignInGoogle} bgColor='#fae9ea' fgColor='#dd4d44'icone={<MaterialCommunityIcons name="google" size={20} color="#dd4d44" />} />
@@ -96,6 +103,7 @@ const styles = StyleSheet.create({
         maxWidth: 200,
         maxHeight: 200,
         marginTop: 50,
+        marginBottom: 20,
     },
     root: {
         alignItems: "center",
