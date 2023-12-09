@@ -123,7 +123,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 10,
     marginTop: 10,
-    color: "#015c60",
+    color: "#002176",
   },
   errorText: {
     color: 'red',

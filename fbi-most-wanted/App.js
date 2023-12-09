@@ -5,6 +5,7 @@ import LoginScreen from './screens/LoginScreen';
 import SignUpScreen from './screens/SignUpScreen';
 import ForgotPasswordScreen from './screens/ForgotPasswordScreen';
 import './config/firebase';
+import Navigation from './Navigation';
 
 
 
@@ -12,7 +13,7 @@ import './config/firebase';
 export default function App() {
   return (
     <SafeAreaView style={styles.container}>
-      <LoginScreen />
+      <Navigation />
       <StatusBar style="auto" />
     </SafeAreaView>
   );
