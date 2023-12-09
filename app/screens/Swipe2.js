@@ -3,9 +3,11 @@ import { ImageBackground, Text, View, Button, Dimensions } from "react-native";
 import TinderCard from "react-tinder-card";
 import axios from "axios";
 
+// Get window dimensions
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
 
+// Component styles
 const styles = {
   container: {
     flex: 1,
@@ -39,12 +41,12 @@ const styles = {
     resizeMode: "cover",
   },
   cardImage: {
-    width: windowWidth * 0.65, // same as cardContainer
-    height: windowHeight * 0.65, // same as cardContainer
+    width: windowWidth * 0.65,
+    height: windowHeight * 0.65,
     overflow: "hidden",
     borderRadius: 20,
-    alignSelf: "center", // Center the image horizontally
-    justifyContent: "center", // Center the
+    alignSelf: "center",
+    justifyContent: "center",
   },
   cardImageStyle: {
     flex: 1,
@@ -79,25 +81,22 @@ let dataState = [];
 const Swipe = () => {
   const [data, setData] = useState([]);
   const [lastDirection, setLastDirection] = useState();
+  const [childRefs, setChildRefs] = useState([]);
 
-  const childRefs = useMemo(() => {
-    const refs = Array(data.length)
-      .fill(0)
-      .map(() => React.createRef());
-    return refs;
-  }, [data]);
-
+  // Helper function to handle swiped cards
   const swiped = (direction, nameToDelete) => {
-    console.log("removing: " + nameToDelete + " to the " + direction);
     setLastDirection(direction);
-    dataState = dataState.filter((item) => item.title !== nameToDelete);
-    setData(dataState);
+    setData((prevData) =>
+      prevData.filter((item) => item.title !== nameToDelete)
+    );
   };
 
+  // Handler for cards leaving the screen
   const outOfFrame = (name) => {
     console.log(name + " left the screen!");
   };
 
+  // Swipe function to programmatically swipe cards
   const swipe = (dir) => {
     const cardsLeft = data.filter(
       (item) => !alreadyRemoved.includes(item.title)
@@ -110,24 +109,54 @@ const Swipe = () => {
     }
   };
 
+  // Fetch data from the API or local JSON
   const fetchData = async () => {
     try {
-      const response = await axios.get(URL);
+      const response = await axios.get("https://api.fbi.gov/@wanted", {
+        params: {
+          pageSize: 20,
+          page: 1,
+          sort_on: "modified",
+          sort_order: "desc",
+          poster_classification: "terrorist",
+          status: "na",
+        },
+      });
       setData(response.data.items);
-      dataState = response.data.items; // Set dataState here
+      dataState = response.data.items;
     } catch (error) {
       console.error("Error fetching data:", error);
-      const localData = require("../assets/localData.json");
-      setData(localData.items);
-      dataState = localData.items; // And here
+      try {
+        const localData = require("../assets/localData.json");
+        setData(localData.items);
+        dataState = localData.items;
+      } catch (localError) {
+        console.error("Error fetching local data:", localError);
+        // If both API and local requests fail, handle it as needed
+        // For example, show a message to the user or use a default dataset.
+      }
     }
   };
 
+  // useEffect to handle initial setup and fetch data
+  useEffect(() => {
+    // Ensure data is available before rendering the cards
+    if (data && data.length > 0 && childRefs.length === 0) {
+      // Create refs for TinderCard components
+      const refs = Array(data.length)
+        .fill(0)
+        .map(() => React.createRef());
+
+      // Set the created refs to childRefs state
+      setChildRefs(refs);
+    }
+  }, [data, childRefs]);
+
+  // useEffect to fetch data when the component mounts
   useEffect(() => {
     fetchData();
   }, []);
 
-  // Removed the line here
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Most Wanted</Text>
@@ -145,7 +174,12 @@ const Swipe = () => {
             <View style={styles.card}>
               <ImageBackground
                 style={styles.cardImage}
-                source={{ uri: item.images[0].original }}
+                source={{
+                  uri:
+                    item.images && item.images.length > 0
+                      ? item.images[0].original
+                      : null,
+                }}
                 imageStyle={styles.cardImageStyle}
               >
                 <Text style={styles.cardTitle}>{item.title}</Text>
