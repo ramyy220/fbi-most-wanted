@@ -1,7 +1,14 @@
-import React, { useState, useEffect, useMemo } from "react";
-import { ImageBackground, Text, View, Button, Dimensions } from "react-native";
+import React, { useState, useEffect, useRef } from "react";
+import {
+  ImageBackground,
+  Text,
+  View,
+  Pressable,
+  Dimensions,
+} from "react-native";
 import TinderCard from "react-tinder-card";
 import axios from "axios";
+import { Link, useNavigation } from "@react-navigation/native"; // Import Link and useNavigation from react-navigation/native
 
 // Get window dimensions
 const windowWidth = Dimensions.get("window").width;
@@ -68,6 +75,9 @@ const styles = {
     justifyContent: "space-between",
     margin: 20,
   },
+  button: {
+    margin: 10,
+  },
   infoText: {
     height: 28,
     justifyContent: "center",
@@ -76,40 +86,47 @@ const styles = {
 };
 
 const alreadyRemoved = [];
-let dataState = [];
 
 const Swipe = () => {
   const [data, setData] = useState([]);
   const [lastDirection, setLastDirection] = useState();
-  const [childRefs, setChildRefs] = useState([]);
+  const childRefs = useRef([]);
+  const navigation = useNavigation(); // Get the navigation object
 
-  // Helper function to handle swiped cards
   const swiped = (direction, nameToDelete) => {
     setLastDirection(direction);
     setData((prevData) =>
       prevData.filter((item) => item.title !== nameToDelete)
     );
+
+    if (direction === "right") {
+      // Perform navigation on right swipe
+      navigateToInfo(nameToDelete);
+    }
   };
 
-  // Handler for cards leaving the screen
+  const navigateToInfo = (name) => {
+    // Use the navigation object to navigate to the "DisplayInfo" screen
+    navigation.navigate("DisplayInfo", { person: { title: name } });
+  };
+
   const outOfFrame = (name) => {
     console.log(name + " left the screen!");
   };
 
-  // Swipe function to programmatically swipe cards
   const swipe = (dir) => {
     const cardsLeft = data.filter(
       (item) => !alreadyRemoved.includes(item.title)
     );
-    if (cardsLeft.length) {
+    if (cardsLeft.length > 0) {
       const toBeRemoved = cardsLeft[cardsLeft.length - 1].title;
-      const index = data.map((item) => item.title).indexOf(toBeRemoved);
       alreadyRemoved.push(toBeRemoved);
-      childRefs[index].current.swipe(dir);
+      swiped(dir, toBeRemoved);
+    } else {
+      console.warn("No cards left to swipe");
     }
   };
 
-  // Fetch data from the API or local JSON
   const fetchData = async () => {
     try {
       const response = await axios.get("https://api.fbi.gov/@wanted", {
@@ -123,36 +140,23 @@ const Swipe = () => {
         },
       });
       setData(response.data.items);
-      dataState = response.data.items;
     } catch (error) {
       console.error("Error fetching data:", error);
       try {
         const localData = require("../assets/localData.json");
         setData(localData.items);
-        dataState = localData.items;
       } catch (localError) {
         console.error("Error fetching local data:", localError);
-        // If both API and local requests fail, handle it as needed
-        // For example, show a message to the user or use a default dataset.
       }
     }
   };
 
-  // useEffect to handle initial setup and fetch data
   useEffect(() => {
-    // Ensure data is available before rendering the cards
-    if (data && data.length > 0 && childRefs.length === 0) {
-      // Create refs for TinderCard components
-      const refs = Array(data.length)
-        .fill(0)
-        .map(() => React.createRef());
-
-      // Set the created refs to childRefs state
-      setChildRefs(refs);
+    if (data && data.length > 0 && childRefs.current.length === 0) {
+      childRefs.current = data.map(() => React.createRef());
     }
-  }, [data, childRefs]);
+  }, [data]);
 
-  // useEffect to fetch data when the component mounts
   useEffect(() => {
     fetchData();
   }, []);
@@ -163,7 +167,7 @@ const Swipe = () => {
       <View style={styles.cardContainer}>
         {data.map((item, index) => (
           <TinderCard
-            ref={childRefs[index]}
+            ref={childRefs.current[index]}
             key={item.title}
             onSwipe={(dir) => swiped(dir, item.title)}
             onCardLeftScreen={() => outOfFrame(item.title)}
@@ -189,8 +193,12 @@ const Swipe = () => {
         ))}
       </View>
       <View style={styles.buttons}>
-        <Button onPress={() => swipe("left")} title="Swipe left!" />
-        <Button onPress={() => swipe("right")} title="Swipe right!" />
+        <Pressable style={styles.button} onPress={() => swipe("left")}>
+          <Text>Swipe left</Text>
+        </Pressable>
+        <Pressable style={styles.button} onPress={() => swipe("right")}>
+          <Text>Swipe right</Text>
+        </Pressable>
       </View>
       {lastDirection ? (
         <Text style={styles.infoText} key={lastDirection}>
@@ -204,3 +212,6 @@ const Swipe = () => {
 };
 
 export default Swipe;
+
+// Print the whole modified Swipe component
+console.log(Swipe);
