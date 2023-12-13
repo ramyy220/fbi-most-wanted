@@ -7,6 +7,7 @@ import SignUpScreen from "../screens/SignUpScreen";
 import ForgotPasswordScreen from "../screens/ForgotPasswordScreen";
 import Swipe from "../components/Swipe";
 import DisplayInfo from "../screens/DisplayInfo";
+import Account from "../screens/Account";
 
 const Stack = createStackNavigator();
 
@@ -17,6 +18,7 @@ const Navigation = () => {
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Signup" component={SignUpScreen} />
         <Stack.Screen name="Forgot" component={ForgotPasswordScreen} />
+        <Stack.Screen name="Account" component={Account} />
         <Stack.Screen
           name="Swipe"
           options={{

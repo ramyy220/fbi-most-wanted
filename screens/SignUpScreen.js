@@ -4,8 +4,10 @@ import CustomButton from "../components/CustomButton";
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import CustomInput from "../components/CustomInput";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../config/firebase.js";
+import { auth, firestore } from "../config/firebase.js";
 import { useNavigation } from "@react-navigation/native";
+import { doc, setDoc } from "firebase/firestore";
+
 
 const SignUpScreen = () => {
   const [username, setUsername] = useState('');
@@ -44,17 +46,31 @@ const SignUpScreen = () => {
 
     if (isValid) {
       createUserWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
-          // Signed up
-          const user = userCredential.user;
-          console.log("user created");
-          navigation.navigate('Login');
-        })
-        .catch((error) => {
-          const errorCode = error.code;
-          const errorMessage = error.message;
-          console.log("user not created", errorMessage);
-        });
+  .then((userCredential) => {
+    
+    const user = userCredential.user;
+    console.log("user created");
+
+    
+    return setDoc(doc(firestore, "users", user.uid), {
+      username: username,
+      email: email,
+
+
+     
+    });
+  })
+  .then(() => {
+    console.log("User document created in Firestore");
+    navigation.navigate('Login'); 
+  })
+  .catch((error) => {
+    
+    const errorCode = error.code;
+    const errorMessage = error.message;
+    console.log("Error", errorCode, errorMessage);
+  });
+
     }
   };
 
@@ -74,6 +90,9 @@ const SignUpScreen = () => {
     
     navigation.navigate('Login');
   };
+
+
+  
 
   return (
     <ScrollView>

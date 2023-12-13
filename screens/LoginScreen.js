@@ -16,6 +16,9 @@ import { auth } from "../config/firebase.js";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { Alert } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import { doc, getDoc } from "firebase/firestore";
+import { firestore } from "../config/firebase.js";
+
 
 const LoginScreen = () => {
   const [email, setEmail] = useState("");
@@ -36,6 +39,7 @@ const LoginScreen = () => {
         ]);
         navigation.navigate("Swipe");
       })
+
       .catch((error) => {
         const errorCode = error.code;
         if (errorCode === "auth/wrong-password") {
