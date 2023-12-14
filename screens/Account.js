@@ -47,32 +47,37 @@ const Account = ({ navigation }) => {
 
 
     const pickImage = async () => {
-      let result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [1, 1],
-        quality: 1,
-      });
-    
-      if (!result.canceled) {
-        const imageUri = result.assets[0].uri;;
-        const response = await fetch(imageUri);
-        const blob = await response.blob();
-    
-        const storage = getStorage();
-        const storageRef = ref(storage, 'user_profile_images/' + auth.currentUser.uid);
-    
-        await uploadBytes(storageRef, blob);
-    
-        const downloadURL = await getDownloadURL(storageRef);
-    
-        const userCollection = collection(firestore, 'users');
-        const docref = doc(userCollection, auth.currentUser.uid);
-        await updateDoc(docref, {
-          profileImageUrl: downloadURL
+      try {
+        let result = await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          allowsEditing: true,
+          aspect: [1, 1],
+          quality: 1,
         });
     
-        setUser({ ...user, profileImageUrl: { uri: downloadURL } });
+        if (!result.canceled) {
+          const imageUri = result.assets[0].uri;
+          const response = await fetch(imageUri);
+          const blob = await response.blob();
+    
+          const storage = getStorage();
+          const storageRef = ref(storage, 'user_profile_images/' + auth.currentUser.uid);
+    
+          await uploadBytes(storageRef, blob);
+    
+          const downloadURL = await getDownloadURL(storageRef);
+    
+          const userCollection = collection(firestore, 'users');
+          const docref = doc(userCollection, auth.currentUser.uid);
+          await updateDoc(docref, {
+            profileImageUrl: downloadURL
+          });
+    
+          setUser({ ...user, profileImageUrl: { uri: downloadURL } });
+        }
+      } catch (error) {
+        console.error("An error occurred while picking the image: ", error);
+        Alert.alert("Error", "An error occurred while picking the image.");
       }
     };
     

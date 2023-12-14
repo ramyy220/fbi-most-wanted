@@ -7,6 +7,7 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth, firestore } from "../config/firebase.js";
 import { useNavigation } from "@react-navigation/native";
 import { doc, setDoc } from "firebase/firestore";
+import { Alert } from "react-native";
 
 
 const SignUpScreen = () => {
@@ -50,6 +51,9 @@ const SignUpScreen = () => {
     
     const user = userCredential.user;
     console.log("user created");
+    Alert.alert("user created", "You have successfully Signed up!", [
+      { text: "OK" },
+    ]);
 
     
     return setDoc(doc(firestore, "users", user.uid), {
@@ -137,16 +141,18 @@ const SignUpScreen = () => {
 
 const styles = StyleSheet.create({
   root: {
+    flex: 1,
     alignItems: "center",
     justifyContent: "center",
     padding: 10,
+    marginVertical: "40%",
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
-    marginBottom: 10,
     marginTop: 10,
     color: "#002176",
+    marginBottom: 50,
   },
   errorText: {
     color: 'red',
