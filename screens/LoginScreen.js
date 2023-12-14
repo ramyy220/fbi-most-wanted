@@ -37,7 +37,7 @@ const LoginScreen = () => {
         Alert.alert("Login Success", "You have successfully logged in!", [
           { text: "OK" },
         ]);
-        navigation.navigate("Swipe");
+        navigation.navigate("Home");
       })
 
       .catch((error) => {

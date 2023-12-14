@@ -29,7 +29,7 @@ const Account = ({ navigation }) => {
           if(docsnapshot.exists()) {
             const userDoc = docsnapshot;
             const userData = userDoc.data();
-            console.log('User data:', userData); // Ajoutez cette ligne
+            console.log('User data:', userData);
             setUser({
               ...user,
               newName: userData.username,

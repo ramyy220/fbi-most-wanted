@@ -10,6 +10,9 @@ import TinderCard from "react-tinder-card";
 import axios from "axios";
 import { useNavigation } from "@react-navigation/native";
 import { filterData } from "../components/filter";
+import firebase from "../config/firebase";
+import { auth, firestore } from "../config/firebase";
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 // Get window dimensions
 const windowWidth = Dimensions.get("window").width;
@@ -23,8 +26,7 @@ const styles = {
     justifyContent: "center",
     width: "100%",
     height: "100%",
-    marginLeft: "5%",
-    marginRight: "5%",
+    backgroundColor: "#e6eef8",
   },
   header: {
     color: "#000",
@@ -34,7 +36,7 @@ const styles = {
   },
   cardContainer: {
     width: windowWidth * 0.0000000000001,
-    height: windowHeight * 0.7,
+    height: windowHeight * 0.6,
     alignItems: "center",
   },
   card: {
@@ -42,15 +44,12 @@ const styles = {
     backgroundColor: "#fff",
     width: "100%",
     height: "100%",
-    shadowColor: "black",
-    shadowOpacity: 0.2,
-    shadowRadius: 20,
     borderRadius: 20,
     resizeMode: "cover",
   },
   cardImage: {
-    width: windowWidth * 0.65,
-    height: windowHeight * 0.65,
+    width: windowWidth * 0.9,
+    height: windowHeight * 0.6,
     overflow: "hidden",
     borderRadius: 20,
     alignSelf: "center",
@@ -94,17 +93,31 @@ const Swipe = () => {
   const childRefs = useRef([]);
   const navigation = useNavigation(); // Get the navigation object
 
-  const swiped = (direction, person) => {
+  const swiped = async (direction, person) => {
     setLastDirection(direction);
     setData((prevData) =>
       prevData.filter((item) => item.title !== person.title)
     );
 
     if (direction === "right") {
-      // Pass the entire person object to navigateToInfo
-      navigateToInfo(person);
+      try {
+        const user = auth.currentUser;
+    
+        const swipesCollection = collection(firestore, 'swipes');
+        await addDoc(swipesCollection, {
+            title: person.title,
+            image: person.image,
+            swipedRight: true,
+            users: user.uid, // Add the user's ID here
+            timestamp: serverTimestamp(),
+        });
+        console.log("Swipe enregistré dans Firebase");
+        navigateToInfo(person);
+      } catch (error) {
+        console.error("Erreur d'enregistrement dans Firebase:", error);
+      }
     }
-  };
+};
 
   const navigateToInfo = (person) => {
     // Use the navigation object to navigate to the "DisplayInfo" screen
@@ -144,6 +157,8 @@ const Swipe = () => {
       setData(modifiedData);
     } catch (error) {
       console.error("Error fetching data:", error);
+      console.error("Erreur lors de la récupération des données de l'API:", error);
+      
       try {
         const localData = require("../assets/localData.json");
         const modifiedData = filterData(localData);

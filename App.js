@@ -8,6 +8,7 @@ import HomeScreen from './screens/HomeScreen';
 import './config/firebase';
 import Navigation from './Navigation';
 import Account from './screens/Account';
+import Like from './screens/Like';
 
 
 
