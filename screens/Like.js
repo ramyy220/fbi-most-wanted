@@ -1,12 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { View, ScrollView, Text, StyleSheet } from 'react-native';
+import { View, ScrollView, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Card } from 'react-native-elements';
 import { auth, firestore } from '../config/firebase';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
-import { AuthErrorCodes } from 'firebase/auth';
+import { useNavigation } from '@react-navigation/native';
 
 const Likes = () => {
+  const navigation = useNavigation();
   const [likes, setLikes] = useState([]);
+
+  const navigateToInfo = (person) => {
+    navigation.navigate("DisplayInfo", { person });
+  };
 
   useEffect(() => {
     const user = auth.currentUser;
@@ -44,6 +49,7 @@ const Likes = () => {
   return (
     <ScrollView style={styles.container}>
       {likes.map((like, index) => (
+         <TouchableOpacity key={index} onPress={() => navigateToInfo(like)}>
         <Card key={index} containerStyle={styles.card}>
           {like.title && typeof like.title === 'string' ? (
             <Card.Title>{like.title}</Card.Title>
@@ -58,6 +64,7 @@ const Likes = () => {
             )}
           </View>
         </Card>
+        </TouchableOpacity>
       ))}
     </ScrollView>
   );

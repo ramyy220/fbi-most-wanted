@@ -28,7 +28,7 @@ const MainTabScreen = () => (
           iconName = focused ? 'home' : 'home-outline';
         } else if (route.name === 'Likes') {
           iconName = focused ? 'heart' : 'heart-outline';
-        } else if (route.name === 'Account') {
+        }else if (route.name === 'Account') {
           iconName = focused ? 'person' : 'person-outline';
         }
         return <Icon name={iconName} size={size} color='#002176' />;

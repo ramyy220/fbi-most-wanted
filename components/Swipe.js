@@ -9,10 +9,11 @@ import {
 import TinderCard from "react-tinder-card";
 import axios from "axios";
 import { useNavigation } from "@react-navigation/native";
-import { filterData } from "../components/filter";
+import { filterData } from "../config/filter";
 import firebase from "../config/firebase";
 import { auth, firestore } from "../config/firebase";
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 // Get window dimensions
 const windowWidth = Dimensions.get("window").width;
@@ -29,10 +30,11 @@ const styles = {
     backgroundColor: "#e6eef8",
   },
   header: {
-    color: "#000",
+    color: "#002176",
     fontSize: 30,
     marginBottom: 30,
     textAlign: "center",
+    fontWeight: "bold",
   },
   cardContainer: {
     width: windowWidth * 0.0000000000001,
@@ -73,10 +75,13 @@ const styles = {
   buttons: {
     flexDirection: "row",
     justifyContent: "space-between",
-    margin: 20,
+    //margin: 20,
   },
-  button: {
-    margin: 10,
+  button1: {
+    marginTop: 15,
+  },
+  button2: {
+    marginTop: 20,
   },
   infoText: {
     height: 28,
@@ -91,24 +96,23 @@ const Swipe = () => {
   const [data, setData] = useState([]);
   const [lastDirection, setLastDirection] = useState();
   const childRefs = useRef([]);
-  const navigation = useNavigation(); // Get the navigation object
+  const navigation = useNavigation();
 
   const swiped = async (direction, person) => {
     setLastDirection(direction);
     setData((prevData) =>
       prevData.filter((item) => item.title !== person.title)
     );
-
+  
     if (direction === "right") {
       try {
         const user = auth.currentUser;
-    
+  
         const swipesCollection = collection(firestore, 'swipes');
         await addDoc(swipesCollection, {
-            title: person.title,
-            image: person.image,
+            ...person,
             swipedRight: true,
-            users: user.uid, // Add the user's ID here
+            users: user.uid, 
             timestamp: serverTimestamp(),
         });
         console.log("Swipe enregistré dans Firebase");
@@ -117,10 +121,10 @@ const Swipe = () => {
         console.error("Erreur d'enregistrement dans Firebase:", error);
       }
     }
-};
+  };
 
   const navigateToInfo = (person) => {
-    // Use the navigation object to navigate to the "DisplayInfo" screen
+    
     navigation.navigate("DisplayInfo", { person });
   };
 
@@ -208,13 +212,13 @@ const Swipe = () => {
         ))}
       </View>
       <View style={styles.buttons}>
-        <Pressable style={styles.button} onPress={() => swipe("left")}>
-          <Text>Swipe left</Text>
-        </Pressable>
-        <Pressable style={styles.button} onPress={() => swipe("right")}>
-          <Text>Swipe right</Text>
-        </Pressable>
-      </View>
+  <Pressable style={[styles.button1, { marginRight: 40 }]} onPress={() => swipe("left")}>
+    <Icon name="times" size={80} color="red" />
+  </Pressable>
+  <Pressable style={[styles.button2, { marginLeft: 40 }]} onPress={() => swipe("right")}>
+    <Icon name="heart" size={70} color="green" />
+  </Pressable>
+</View>
       {lastDirection ? (
         <Text style={styles.infoText} key={lastDirection}>
           You swiped {lastDirection}
